@@ -5,7 +5,7 @@ def main():
     st.title("AI Study Planner") 
 
     data = supabase.table("Student").select("*").execute() 
-    st.write(data)
+    st.write(data) 
 
 if __name__ == "__main__":
     main()
