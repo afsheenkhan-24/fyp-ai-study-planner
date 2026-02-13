@@ -1,11 +1,8 @@
 import streamlit as st
 from utils.supabase_client import supabase
 
-def main():
-    st.title("AI Study Planner") 
-
-    data = supabase.table("Student").select("*").execute() 
-    st.write(data) 
-
-if __name__ == "__main__":
-    main()
+pg = st.navigation([
+    st.Page("pages/dashboard.py", title="Dashboard", icon=":material/dashboard:", default=True),
+    st.Page("pages/planner.py", title="Planner", icon=":material/book:", default=False)
+])
+pg.run()
