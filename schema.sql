@@ -23,3 +23,15 @@ create table Task (
     references Student (student_id)
     on delete cascade
 );
+
+-- StudyPlan table
+create table StudyPlan (
+  plan_id bigint primary key,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  student_id bigint not null,
+  constraint studyplan_student_id_fkey
+    foreign key (student_id)
+    references Student (student_id)
+    on delete cascade
+);
