@@ -3,7 +3,7 @@ from utils.supabase_client import supabase
 
 st.title("Tasks")
 
-def add_task_backend(student_id):
+def add_task(student_id):
     supabase.table("Task").insert({
         "student_id": student_id,
         "title": st.session_state.name,
@@ -16,8 +16,8 @@ def add_task_backend(student_id):
 
     st.success("Task added successfully!")
 
-def get_tasks(student_id):
-    response = supabase.table("Task").select("*").eq("student_id", student_id).execute()
+def get_task(student_id):
+    response = supabase.table("Task").select("title", "description", "deadline", "priority","status", "estimated_time").eq("student_id", student_id).execute()
     return response.data
 
 def add_task_form():
@@ -36,7 +36,7 @@ def add_task_form():
             add_task(student_id)
 
 with st.container():
-    tasks = get_tasks(st.session_state.student_id)
+    tasks = get_task(st.session_state.student_id)
     st.dataframe(tasks)
     add_task_form()
     
