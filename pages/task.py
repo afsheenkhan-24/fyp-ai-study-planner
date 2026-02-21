@@ -1,7 +1,14 @@
 import streamlit as st
+from datetime import date
 from utils.supabase_client import supabase
 
 st.title("Tasks")
+
+# ---------- Data layer ----------
+
+def get_task(student_id):
+    response = supabase.table("Task").select("task_id","title", "description", "deadline", "priority","status", "estimated_time").eq("student_id", student_id).execute()
+    return response.data
 
 def add_task(student_id):
     supabase.table("Task").insert({
@@ -16,9 +23,7 @@ def add_task(student_id):
 
     st.success("Task added successfully!")
 
-def get_task(student_id):
-    response = supabase.table("Task").select("title", "description", "deadline", "priority","status", "estimated_time").eq("student_id", student_id).execute()
-    return response.data
+# ---------- Add task form ----------
 
 def add_task_form():
     with st.form("add_task_form"):
@@ -35,10 +40,26 @@ def add_task_form():
             student_id = st.session_state.student_id
             add_task(student_id)
 
-with st.container():
-    tasks = get_task(st.session_state.student_id)
-    st.dataframe(tasks)
-    add_task_form()
-    
+# ---------- Main layout ----------
+
+student_id = st.session_state.student_id
+tasks = get_task(student_id)
+
+# Task list cards
+st.subheader("All Tasks")
+for t in tasks:
+    with st.container(border=True):
+            # first row: title and status
+            c1, c2 = st.columns([3, 1],width="stretch")
+            with c1:
+                st.markdown(f"**{t['title']}**")
+                st.caption(t["description"] or "No description")
+            with c2:                
+                st.markdown(f"**{t['status']}**")
+                st.caption(f"Due: {t['deadline']}")
+            
+st.markdown("---")
+add_task_form()
+
 
 
