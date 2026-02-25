@@ -59,6 +59,7 @@ for t in tasks:
                 st.caption(f"Due: {t['deadline']}")
             
 st.markdown("---")
+st.subheader("Add New Task")
 add_task_form()
 
 
