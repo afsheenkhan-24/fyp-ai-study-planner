@@ -8,3 +8,4 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 supabase: Client = get_supabase_client()
+
