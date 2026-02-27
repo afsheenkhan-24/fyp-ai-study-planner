@@ -4,6 +4,9 @@ import datetime
 
 st.title("Calendar")
 
+st.date_input("Select a date")
+
+
 available_dates = [
     datetime.date(2025, 6, 20),
     datetime.date(2025, 6, 25),
