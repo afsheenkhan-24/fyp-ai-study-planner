@@ -55,7 +55,7 @@ def add_task_form():
         st.date_input("Due Date", key="deadline")
         st.selectbox("Priority", options=["Low", "Medium", "High"], key="priority")
         st.selectbox("Status", options=["To Do", "In Progress", "Completed"], key="status")
-        st.text_input("Estimated Time", key="estimated_time")
+        st.text_input("Estimated Time (in hours)", key="estimated_time")
 
         submitted = st.form_submit_button("Add Task", type="primary", use_container_width=True)
 
@@ -115,7 +115,7 @@ else:
             with c1:
                 st.markdown(f"**{t['title']}**")
                 st.caption(t["description"] or "No description")
-                st.caption(f"Estimated: {t['estimated_time'] or 'N/A'}")
+                st.caption(f"Estimated time: {t['estimated_time'] or 'N/A'} hours")
             with c2:
                 st.markdown(f"**{t['status']}**")
                 st.caption(f"Due: {t['deadline']}")
