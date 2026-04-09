@@ -5,7 +5,6 @@ from datetime import date, timedelta
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llama3.2:3b"
 
-# 
 def generate_study_plan(tasks, days_ahead=7):
     if not tasks:
         return "You have no tasks yet. Add some tasks first so I can create a study plan."
@@ -51,7 +50,7 @@ Do NOT use generic labels like "Day 1" or "Day 2". Always use the real calendar 
     payload = {
         "model": MODEL_NAME,
         "prompt": prompt,
-        #"stream": False,
+        "stream": False,
     }
 
     try:
