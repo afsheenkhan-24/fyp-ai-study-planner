@@ -3,7 +3,7 @@ import streamlit as st
 from utils.supabase_client import supabase
 from utils.ollama_client import generate_study_plan
 
-st.title("Planner")
+st.title("Generate Study Plan")
 
 # ---------- Data layer ----------
 
@@ -27,7 +27,7 @@ tasks = get_task(student_id)
 
 st.markdown("---")
 
-st.subheader("AI Study Plan")
+#st.subheader("AI Study Plan")
 
 days_ahead = st.slider(
     "Plan for how many days?",
