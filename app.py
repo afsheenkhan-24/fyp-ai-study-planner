@@ -1,15 +1,30 @@
 import streamlit as st
-from utils.supabase_client import supabase
+from utils.auth import run_auth, sign_out
 
-if "student_id" not in st.session_state:
-    st.session_state.student_id = 1  # Default student ID for testing
+st.set_page_config(page_title="AI Study Planner", layout="wide")
 
-pg = st.navigation([
-    st.Page("pages/dashboard.py", title="Dashboard", icon=":material/dashboard:", default=True),
-    st.Page("pages/assignment.py", title="Assignments", icon=":material/school:", default=False),
-    st.Page("pages/task.py", title="Tasks", icon=":material/assignment:", default=False),
-    st.Page("pages/planner.py", title="Planner", icon=":material/book:", default=False),
-    st.Page("pages/calendar.py", title="Calendar", icon=":material/calendar_month:", default=False),
-    st.Page("pages/profile.py", title="Profile", icon=":material/person:", default=False),
-])
-pg.run()
+if "user" not in st.session_state:
+    st.session_state["user"] = None
+
+if "profile" not in st.session_state:
+    st.session_state["profile"] = {}
+
+authenticated = run_auth()
+
+if authenticated:
+    st.sidebar.success(
+        f"Logged in as {st.session_state['profile'].get('full_name') or st.session_state['user'].email}"
+    )
+
+    if st.sidebar.button("Sign out", use_container_width=True):
+        sign_out()
+
+    pg = st.navigation([
+        st.Page("pages/dashboard.py", title="Dashboard", icon=":material/dashboard:", default=True),
+        st.Page("pages/assignment.py", title="Assignments", icon=":material/school:"),
+        st.Page("pages/task.py", title="Tasks", icon=":material/assignment:"),
+        st.Page("pages/planner.py", title="Planner", icon=":material/book:"),
+        st.Page("pages/calendar.py", title="Calendar", icon=":material/calendar_month:"),
+        st.Page("pages/profile.py", title="Profile", icon=":material/person:"),
+    ])
+    pg.run()

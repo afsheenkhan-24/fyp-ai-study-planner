@@ -1,67 +1,106 @@
 import streamlit as st
-from utils.supabase_client import supabase
+from utils.supabase_client import get_supabase_client
 
-st.title("Welcome! Please log in or sign up to continue.")
 
-if "user" not in st.session_state:
-    st.session_state.user = None
-if "student_id" not in st.session_state:
-    st.session_state.student_id = None
+def run_auth() -> bool:
+    if st.session_state.get("user"):
+        return True
 
-tab_login, tab_signup = st.tabs(["Login", "Sign up"])
+    supabase = get_supabase_client()
 
-with tab_login:
-    with st.form("login_form"):
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Login", type="primary", use_container_width=True)
+    st.title("PlanMyStudy")
+    st.caption("Plan your study time, tasks, and assignments")
 
-    if submitted:
-        if not email or not password:
-            st.error("Please enter both email and password.")
-        else:
-            try:
-                res = supabase.auth.sign_in_with_password(
-                    {"email": email, "password": password}
-                )
-                if res.user:
-                    st.session_state.user = res.user
-                    # Use auth user id as student_id
-                    st.session_state.student_id = res.user.id
-                    st.success("Logged in successfully.")
-                    st.rerun()
-                else:
-                    st.error("Login failed. Check your credentials.")
-            except Exception as e:
-                st.error(f"Error during login: {e}")
+    tab_login, tab_register = st.tabs(["Login", "Register"])
 
-with tab_signup:
-    with st.form("signup_form"):
-        email_s = st.text_input("Email", key="signup_email")
-        password_s = st.text_input("Password", type="password", key="signup_password")
-        submitted_s = st.form_submit_button("Sign up", type="primary", use_container_width=True)
+    with tab_login:
+        st.subheader("Sign in to your account")
 
-    if submitted_s:
-        if not email_s or not password_s:
-            st.error("Please enter both email and password.")
-        else:
-            try:
-                res = supabase.auth.sign_up({"email": email_s, "password": password_s})
-                if res.user:
-                    st.success("Sign up successful. Please confirm your email, then log in.")
-                else:
-                    st.error("Sign up failed.")
-            except Exception as e:
-                st.error(f"Error during sign up: {e}")
+        login_email = st.text_input("Email", key="login_email")
+        login_password = st.text_input("Password", type="password", key="login_password")
 
-if st.session_state.user:
-    st.info(f"Logged in as {st.session_state.user.email}")
-    if st.button("Log out", use_container_width=True):
-        try:
-            supabase.auth.sign_out()
-        except Exception:
-            pass
-        st.session_state.user = None
-        st.session_state.student_id = None
-        st.success("Logged out.")
-        st.rerun()
+        if st.button("Sign in", key="btn_login"):
+            if not login_email or not login_password:
+                st.warning("Please enter your email and password.")
+            else:
+                try:
+                    response = supabase.auth.sign_in_with_password(
+                        {
+                            "email": login_email,
+                            "password": login_password,
+                        }
+                    )
+                    user = response.user
+                    if user:
+                        st.session_state["user"] = user
+                        if "profile" not in st.session_state:
+                            st.session_state["profile"] = {}
+
+                        metadata = user.user_metadata or {}
+                        st.session_state["profile"]["full_name"] = metadata.get("full_name", "")
+                        st.session_state["profile"]["email"] = user.email or metadata.get("email", "")
+                        st.rerun()
+                    else:
+                        st.error("Sign in failed. Please check your credentials.")
+                except Exception as e:
+                    st.error(f"Sign in error: {e}")
+
+    with tab_register:
+        st.subheader("Create an account")
+
+        reg_name = st.text_input("Name", key="reg_name")
+        reg_email = st.text_input("Email", key="reg_email")
+        reg_password = st.text_input(
+            "Password",
+            type="password",
+            key="reg_password",
+            help="Minimum 6 characters.",
+        )
+        reg_password_confirm = st.text_input(
+            "Confirm password",
+            type="password",
+            key="reg_password_confirm",
+        )
+
+        if st.button("Register", key="btn_register"):
+            if not reg_name or not reg_email or not reg_password:
+                st.warning("Please fill in all fields.")
+            elif reg_password != reg_password_confirm:
+                st.error("Passwords do not match.")
+            elif len(reg_password) < 6:
+                st.error("Password must be at least 6 characters.")
+            else:
+                try:
+                    response = supabase.auth.sign_up(
+                        {
+                            "email": reg_email,
+                            "password": reg_password,
+                            "options": {
+                                "data": {
+                                    "full_name": reg_name
+                                }
+                            },
+                        }
+                    )
+                    user = response.user
+                    if user:
+                        st.success(
+                            f"Account created for {reg_name}. Please check your email to confirm your account, then sign in."
+                        )
+                    else:
+                        st.error("Registration failed. Please try again.")
+                except Exception as e:
+                    st.error(f"Registration error: {e}")
+
+    return False
+
+
+def sign_out():
+    try:
+        supabase = get_supabase_client()
+        supabase.auth.sign_out()
+    except Exception:
+        pass
+    st.session_state.pop("user", None)
+    st.session_state.pop("profile", None)
+    st.rerun()
