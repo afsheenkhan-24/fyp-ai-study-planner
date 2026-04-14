@@ -1,9 +1,18 @@
 import streamlit as st
 from datetime import date, timedelta, datetime
 from utils.supabase_client import supabase
+from utils.llm_client import generate_subtasks_with_llm
+from utils.auth import run_auth
 
+
+run_auth()
+if "student_id" not in st.session_state or st.session_state.student_id is None:
+    st.stop()
+
+student_id: int = st.session_state.student_id
 
 st.title("Assignments")
+
 
 def format_date(date_str: str) -> str:
     try:
@@ -14,7 +23,6 @@ def format_date(date_str: str) -> str:
 
 
 # ---- Data layer ----
-
 
 def get_assignments(student_id: int):
     response = (
@@ -66,6 +74,7 @@ def create_tasks_from_assignment(assignment, student_id: int, sessions: int = 5)
             st.warning("Not enough days between today and the deadline to create sessions.")
             return
 
+    # 1) Compute the dates (rule-based)
     step = max(1, total_days // sessions)
     scheduled_dates = []
     current = today
@@ -76,13 +85,21 @@ def create_tasks_from_assignment(assignment, student_id: int, sessions: int = 5)
         scheduled_dates.append(deadline)
 
     scheduled_dates = sorted(set(scheduled_dates))
+    sessions = len(scheduled_dates)
+
+    # 2) Ask LLM for subtask 
+    subtasks = generate_subtasks_with_llm(title, description, sessions=sessions)
+    if not subtasks or len(subtasks) != sessions:
+        # Fallback to generic labels if LLM fails
+        subtasks = [f"Session {i}" for i in range(1, sessions + 1)]
 
     tasks_payload = []
-    for i, d in enumerate(scheduled_dates, start=1):
+    for i, d in enumerate(scheduled_dates):
+        label = subtasks[i]
         tasks_payload.append({
             "student_id": student_id,
             "assignment_id": assignment["assignment_id"],
-            "title": f"{title} - Session {i}",
+            "title": f"{title} - {label}",
             "description": description,
             "deadline": d.isoformat(),
             "priority": "Medium",
@@ -101,7 +118,7 @@ def create_tasks_from_assignment(assignment, student_id: int, sessions: int = 5)
 # ---- Add assignment dialog ----
 
 @st.dialog("Add new assignment")
-def add_assignment_dialog(student_id: int):
+def add_assignment_dialog(student_id: str):
     with st.form("add_assignment_form"):
         title = st.text_input("Title")
         module = st.text_input("Module (optional)")
@@ -123,7 +140,8 @@ def add_assignment_dialog(student_id: int):
 
 # ---- Main layout ----
 
-student_id = st.session_state.get("student_id", 1)
+st.markdown("---")
+
 assignments = get_assignments(student_id)
 
 st.button("Add assignment", on_click=add_assignment_dialog, args=(student_id,), type="primary")
