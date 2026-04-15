@@ -67,7 +67,7 @@ Do NOT use generic labels like "Day 1" or "Day 2". Always use the real calendar 
                 {"role": "user", "content": prompt},
             ],
             temperature=0.5,
-            max_completion_tokens=1024,
+            max_tokens=1024,
         )
 
         content = completion.choices[0].message.content
