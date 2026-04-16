@@ -3,12 +3,6 @@ from utils.supabase_client import get_supabase_client
 
 
 def _get_or_create_student_for_user(user):
-    """
-    Map a Supabase Auth user (UUID id) to a numeric Student.student_id.
-
-    - Looks up Student by auth_user_id.
-    - If not found, creates a new Student row with defaults and returns its student_id.
-    """
     supabase = get_supabase_client()
 
     # 1) find existing Student row by auth_user_id
@@ -47,8 +41,15 @@ def run_auth() -> bool:
 
     supabase = get_supabase_client()
 
-    st.title("PlanMyStudy")
-    st.caption("Plan your study time, tasks, and assignments")
+    st.markdown(
+    """
+    <h1 style='color:#1E3A8A; margin-bottom:0px;'>PlanMyStudy</h1>
+    <p style='color:#1E3A8A; margin-top:4px;'>
+        Plan your study time, tasks, and assignments
+    </p>
+    """,
+    unsafe_allow_html=True,
+    )
 
     tab_login, tab_register = st.tabs(["Login", "Register"])
 
