@@ -3,6 +3,12 @@ from utils.auth import run_auth, sign_out
 
 st.set_page_config(page_title="AI Study Planner", layout="wide")
 
+st.logo(
+    "images/logo.png",  
+    icon_image="images/logo.png",  
+    link="https://ai-study-planner-fyp.streamlit.app"
+)
+
 if "user" not in st.session_state:
     st.session_state["user"] = None
 
