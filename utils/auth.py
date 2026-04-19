@@ -92,7 +92,7 @@ def run_auth() -> bool:
                     else:
                         st.error("Sign in failed. Please check your credentials.")
                 except Exception as e:
-                    st.error(f"Sign in error: {e}")
+                    st.error(f"Sign in error: the service is currently unavailable. Please try again in a few minutes.")
 
     # ---- REGISTER ----
     with tab_register:
