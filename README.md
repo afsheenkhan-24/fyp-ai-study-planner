@@ -16,7 +16,7 @@ An AI-powered study planner that generates personalized, day‑by‑day study sc
 
 You can try the app online here:
 
-👉 **[Open the live app](https://ai-study-planner-fyp.streamlit.app)**
+👉 **[Open the live app](https://planmystudy.streamlit.app)**
 
 No local setup needed – add your modules, deadlines, and availability in the browser and generate an AI‑powered study plan.
 
@@ -37,7 +37,7 @@ No local setup needed – add your modules, deadlines, and availability in the b
 
 - **Frontend / UI:** Streamlit
 - **Backend / Logic:** Python (`app.py`, `pages/`, `utils/`)
-- **AI / LLM:** Ollama (local LLM, configurable model)
+- **AI / LLM:** Groq (LLM, configurable model)
 - **Database:** SQL database based on `schema.sql` (e.g., Postgres/Supabase‑style schema with a `StudyPlan` table)
 - **Dev Environment:** VS Code Dev Containers, `requirements.txt` for dependencies
 
